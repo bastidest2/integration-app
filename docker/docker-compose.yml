@@ -19,3 +19,15 @@ services:
     container_name: integration-adminer
     ports:
       - 8080:8080
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0.10
+    restart: unless-stopped
+    container_name: integration-mosquitto
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./data/mosquitto/data:/mosquitto/data
+      - ./data/mosquitto/log:/mosquitto/log
