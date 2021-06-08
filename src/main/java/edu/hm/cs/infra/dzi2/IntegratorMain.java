@@ -2,7 +2,7 @@ package edu.hm.cs.infra.dzi2;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
-public class Main {
+public class IntegratorMain {
 
     public static void main(String[] args) {
         System.out.println("Init");
@@ -10,7 +10,7 @@ public class Main {
 
         System.out.println("MQTT Test");
         try {
-            new MqttConnection().testConnection();
+            final MqttConnection connection = new MqttConnection("integrator");
         } catch (MqttException e) {
             e.printStackTrace();
         }
