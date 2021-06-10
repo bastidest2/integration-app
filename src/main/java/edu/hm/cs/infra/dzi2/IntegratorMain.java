@@ -11,6 +11,8 @@ public class IntegratorMain {
         System.out.println("MQTT Test");
         try {
             final MqttConnection connection = new MqttConnection("integrator");
+            connection.connect();
+            connection.subscribe("office/#");
         } catch (MqttException e) {
             e.printStackTrace();
         }

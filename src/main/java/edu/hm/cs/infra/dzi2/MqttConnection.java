@@ -28,7 +28,12 @@ public class MqttConnection implements Closeable {
         final MqttConnectOptions connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
         System.out.println(clientId + ": Connecting to broker: " + BROKER_ADDRESS);
+        client.setCallback(new MqttPrintCallback());
         client.connect(connOpts);
+    }
+
+    public void subscribe(String topic) throws MqttException {
+        client.subscribe(topic);
     }
 
     @Override
