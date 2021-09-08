@@ -8,11 +8,17 @@ public class IntegratorMain {
         System.out.println("Init");
         new DbConnection().initDb();
 
+        final GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.readConfig();
+
         System.out.println("MQTT Test");
         try {
             final MqttConnection connection = new MqttConnection("integrator");
             connection.connect();
-            connection.subscribe("office/#");
+
+            for(final String topic : globalConfig.getTopics()) {
+                connection.subscribe(topic);
+            }
         } catch (MqttException e) {
             e.printStackTrace();
         }
