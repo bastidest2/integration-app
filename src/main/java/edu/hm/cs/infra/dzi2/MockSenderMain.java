@@ -17,7 +17,7 @@ public class MockSenderMain {
 
     private void run() {
         try (connection) {
-            connection.connect();
+            connection.connect(new MqttPrintCallback());
 
             final List<String> locations = Arrays.asList("warehouse", "office", "server-room");
             final List<String> direction = Arrays.asList("north", "east", "south", "west");

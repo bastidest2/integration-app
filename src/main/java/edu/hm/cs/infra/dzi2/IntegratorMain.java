@@ -6,7 +6,8 @@ public class IntegratorMain {
 
     public static void main(String[] args) {
         System.out.println("Init");
-        new DbConnection().initDb();
+        DbConnection dbConnection = new DbConnection();
+        dbConnection.initDb();
 
         final GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.readConfig();
@@ -14,7 +15,7 @@ public class IntegratorMain {
         System.out.println("MQTT Test");
         try {
             final MqttConnection connection = new MqttConnection("integrator");
-            connection.connect();
+            connection.connect(new MqttStoreCallback(dbConnection));
 
             for(final String topic : globalConfig.getTopics()) {
                 connection.subscribe(topic);

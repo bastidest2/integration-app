@@ -1,9 +1,6 @@
 package edu.hm.cs.infra.dzi2;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.io.Closeable;
@@ -12,8 +9,6 @@ import java.io.IOException;
 import static edu.hm.cs.infra.dzi2.GlobalConfig.BROKER_ADDRESS;
 
 public class MqttConnection implements Closeable {
-
-    private static final String TOPIC_HELLO = "topic-hello";
 
     private final MqttClient client;
     private final String clientId;
@@ -24,11 +19,11 @@ public class MqttConnection implements Closeable {
         client = new MqttClient(BROKER_ADDRESS, clientId, persistence);
     }
 
-    public void connect() throws MqttException {
+    public void connect(MqttCallback callback) throws MqttException {
         final MqttConnectOptions connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
         System.out.println(clientId + ": Connecting to broker: " + BROKER_ADDRESS);
-        client.setCallback(new MqttPrintCallback());
+        client.setCallback(callback);
         client.connect(connOpts);
     }
 
