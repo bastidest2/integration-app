@@ -28,6 +28,7 @@ public class MqttStoreCallback implements MqttCallback {
         final String sensor = topic.substring(0,lastPartPos);
         final String value = mqttMessage.toString();
         System.out.println("Sensor: " + sensor + ", Key: " + metric + ", Value: " + value);
+        dbConnection.writeMessage(sensor, metric, value);
     }
 
     @Override

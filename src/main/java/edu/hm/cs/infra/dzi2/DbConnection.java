@@ -1,18 +1,21 @@
 package edu.hm.cs.infra.dzi2;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class DbConnection {
     private static final String DB_URL = "jdbc:mariadb://localhost:3306/digital_twin";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "root";
 
+    private static final String NE_ID = "THE_NE";
+
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+    }
+
     public void initDb() {
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-             Statement stmt = conn.createStatement();
+        try (Connection conn = this.getConnection();
+             Statement stmt = conn.createStatement()
         ) {
             String sql = "create table if not exists CTFIFC_NMS_NE (" +
                     "CREATE_DATE date, " +
@@ -59,7 +62,44 @@ public class DbConnection {
                     "foreign key ( NMS_ID ) references CTFIFC_NMS_CHASSIS ( NMS_ID )" +
                     ")";
             stmt.executeUpdate(sql);
+
             System.out.println("DB tables created successfully...");
+
+            sql = "insert ignore into CTFIFC_NMS_NE (NMS_ID,CREATE_DATE) values (?,?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, NE_ID);
+            pstmt.setDate(2, new Date(new java.util.Date().getTime()));
+            pstmt.executeUpdate();
+            System.out.println("NE created successfully...");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeMessage(String chassis, String key, String value) {
+        try(Connection conn = this.getConnection()) {
+            String sql = "insert ignore into CTFIFC_NMS_CHASSIS (NMS_ID,NE_ID,CREATE_DATE) values (?,?,?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, chassis);
+            pstmt.setString(2, NE_ID);
+            pstmt.setDate(3, new Date(new java.util.Date().getTime()));
+            pstmt.executeUpdate();
+
+            sql = "update CTFIFC_NMS_ADDITIONAL_DATA set VALUE=? where NMS_ID=? and `KEY`=?;";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, value);
+            pstmt.setString(2, chassis);
+            pstmt.setString(3, key);
+            final int updateCount = pstmt.executeUpdate();
+            if (updateCount == 0) {
+                sql = "insert into CTFIFC_NMS_ADDITIONAL_DATA(NMS_ID,`KEY`,VALUE) values(?,?,?);";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, chassis);
+                pstmt.setString(2, key);
+                pstmt.setString(3, value);
+                pstmt.executeUpdate();
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
